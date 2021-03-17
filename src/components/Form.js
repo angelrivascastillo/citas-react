@@ -9,18 +9,38 @@ const initialFormValues = {
 
 }
 
-const Form = () => {
+const Form = ({ addAppointment }) => {
     const [formValues, setFormValues] = useState(initialFormValues)
     const { name, owner, date, hour, symptom } = formValues
+    const [error, setError] = useState(null)
+    const [success, setSuccess] = useState(null)
 
     const handleOnchange = e => {
         setFormValues({ ...formValues, [e.target.name]: e.target.value })
 
     }
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        if (!name.trim() || !owner.trim() || !date || !hour || !symptom.trim()) {
+            setError('Todos los campos son obligatorios')
+            return false
+        }
+        addAppointment(formValues)
+        setFormValues(initialFormValues)
+        setError(null)
+
+        setSuccess('Cita agregada con exito')
+        setTimeout(() => {
+            setSuccess(null)
+
+        }, 3000);
+
+
+    }
     return (
         <>
             <h2 className='text-center mb-4'> Crear cita</h2>
-            <form action="">
+            <form onSubmit={handleSubmit}>
 
                 <div className="form-group">
                     <input type="text" className="form-control"
@@ -65,9 +85,11 @@ const Form = () => {
                     <input type="submit" value="Agregar cita"
                         className='btn btn-primary btn-block ' />
                 </div>
-                <input type="time" name="" id="" />
 
             </form>
+            {success && <div className="alert alert-success">{success}</div>}
+            {error && <div className="alert alert-danger">{error}</div>}
+
 
         </>
     )

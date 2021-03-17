@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 const initialFormValues = {
     name: '',
@@ -9,7 +9,7 @@ const initialFormValues = {
 
 }
 
-const Form = ({ addAppointment }) => {
+const Form = ({ addAppointment, appointmentEdit, setAppointmentEdit, updateAppointment }) => {
     const [formValues, setFormValues] = useState(initialFormValues)
     const { name, owner, date, hour, symptom } = formValues
     const [error, setError] = useState(null)
@@ -25,11 +25,19 @@ const Form = ({ addAppointment }) => {
             setError('Todos los campos son obligatorios')
             return false
         }
-        addAppointment(formValues)
-        setFormValues(initialFormValues)
+        if (appointmentEdit) {
+            updateAppointment(formValues)
+            setSuccess('Actualizado conn éxito')
+            setAppointmentEdit(null)
+        }
+        else {
+            addAppointment(formValues)
+            setFormValues(initialFormValues)
+            setSuccess('Cita agregada con exito')
+        }
+
         setError(null)
 
-        setSuccess('Cita agregada con exito')
         setTimeout(() => {
             setSuccess(null)
 
@@ -37,9 +45,14 @@ const Form = ({ addAppointment }) => {
 
 
     }
+    useEffect(() => {
+        if (appointmentEdit) setFormValues(appointmentEdit)
+        else setFormValues(initialFormValues)
+
+    }, [appointmentEdit])
     return (
         <>
-            <h2 className='text-center mb-4'> Crear cita</h2>
+            <h2 className='text-center mb-4'> {appointmentEdit ? 'Editar cita' : 'Crear cita'}</h2>
             <form onSubmit={handleSubmit}>
 
                 <div className="form-group">
@@ -82,9 +95,20 @@ const Form = ({ addAppointment }) => {
                     ></textarea>
                 </div>
                 <div className="form-group">
-                    <input type="submit" value="Agregar cita"
+                    <input type="submit" value={appointmentEdit ? 'Actualizar cita' : 'Agregar cita'}
                         className='btn btn-primary btn-block ' />
                 </div>
+                {appointmentEdit && (
+                    <div className="form-group">
+                        <input type="submit" value='Cancelar edición'
+                            className='btn btn-warning btn-block '
+                            onClick={() => setAppointmentEdit(null)}
+                        />
+                    </div>
+
+                )
+
+                }
 
             </form>
             {success && <div className="alert alert-success">{success}</div>}
